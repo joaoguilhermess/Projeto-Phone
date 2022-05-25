@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Projeto Phone</title>
+	<style type="text/css">
+		* {
+			box-sizing: content-box;
+		}
+		html, body {
+			margin: 0;
+			outline: 0;
+			padding: 0;
+			width: 100vw;
+			height: 100vh;
+		}
+		body {
+			width: 100vw;
+			height: 100vh;
+			background-color: #202020;
+			/*perspective: 800px;*/
+			/*perspective: 600px;*/
+			overflow: hidden;
+		}
+		.center {
+			position: relative;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+		}
+		.phone {
+			width: 205px;
+			height: 340px;
+			/*background: url("/front");*/
+			/*perspective: 600px;*/
+		}
+		.screen {
+			width: 90%;
+			height: 70%;
+			background-color: #181818;
+		}
+		.top {
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			background: url("/top");
+			/*background-color: #202020;*/
+			transform: translateY(-170px) rotateX(90deg);
+			z-index: 1;
+		}
+		.front {
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			top: 0;
+			left: 0;
+			background: url("/front");
+			/*background-color: #202020;*/
+			transform: translateZ(19.197px);
+			z-index: 2;
+		}
+		.left {
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			background: url("/left");
+			/*background-color: #202020;*/
+			transform: translateX(-102.5px) rotateY(90deg);
+		}
+		.right {
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			background: url("/right");
+			/*background-color: #202020;*/
+			transform: translateX(102.5px) rotateY(-90deg);
+		}
+		.bottom {
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			background: url("/bottom");
+			/*background-color: #202020;*/
+			transform: translateY(170px) rotateX(90deg);
+		}
+		.back {
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			background: url("/back");
+			/*background-color: #202020;*/
+			opacity: 0;
+		}
+		.print {
+			position: fixed;
+			left: 0;
+			bottom: 0;
+			padding: 0.5em;
+			color: #f0f0f0;
+			background: #00000070;
+			/*font-family: "Segoe UI";*/
+			font-family: monospace;
+			font-size: 18px;
+			white-space: pre-wrap;
+			tab-size: 4;
+		}
+	</style>
+</head>
+<body>
+	<div class="phone center">
+		<div class="back"></div>
+		<div class="top"></div>
+		<div class="left"></div>
+		<div class="right"></div>
+		<div class="bottom"></div>
+		<div class="front"></div>
+	</div>
+
+	<div class="print"></div>
+</body>
+	<script type="text/javascript">
+		const phone = document.querySelector(".phone");
+		const phoneFront = document.querySelector(".phone .front");
+		const phoneTop = document.querySelector(".phone .top");
+		const phoneLeft = document.querySelector(".phone .left");
+		const phoneRight = document.querySelector(".phone .right");
+		const phoneBottom = document.querySelector(".phone .bottom");
+		const phoneBack = document.querySelector(".phone .back");
+
+		const print = document.querySelector(".print");
+
+		function format(str, len = 20) {
+			str = str.toString();
+			while (str.length < len) {
+				str = " " + str;
+			}
+			return str;
+		}
+
+		function cut(str, len = 3) {
+			str = str.toString();
+			var r = "";
+			for (var i = 0; i < str.length; i++) {
+				if (str[i] == ".") {
+					for (var l = 0; l <= len; l++) {
+						if (str[i + l]) {
+							r += str[i + l];
+						}
+					}
+					break;
+				}
+				r += str[i];
+			}
+			return r;
+		}
+
+		//                   X       Y      Z
+		const topPos    = [0,      -167,   0];
+		const frontPos  = [0,         0, -18];
+		const leftPos   = [-102,      0,   0];
+		const rightPos  = [102,       0,   0];
+		const bottomPos = [0,       167,   0];
+		const backPos   = [0,         0,  18];
+
+		//                  X    Y   Z
+		const topRot    = [ 90,   0, 0];
+		const frontRot  = [  0,   0, 0];
+		const leftRot   = [  0, -90, 0];
+		const rightRot  = [  0,  90, 0];
+		const bottomRot = [-90,   0, 0];
+		const backRot   = [  0,   0, 0];
+
+		const max = 90;
+
+		function position(x = 0, y = 0, z = 0) {
+			return "translateX(" + x + "px) translateY(" + y + "px) translateZ(" + z + "px) ";
+		}
+
+		function rotation(x = 0, y = 0, z = 0) {
+			return "rotateX(" + x + "deg) rotateY(" + y + "deg) rotateZ(" + z + "deg) ";
+		}
+
+		const g = Math.PI / 180;
+
+		onmousemove = function(event) {
+			var Ty = document.body.clientHeight;
+			var Tx = document.body.clientWidth;
+			var My = document.body.clientHeight/2;
+			var Mx = document.body.clientWidth/2;
+
+			var Ry = (My - event.pageY) * (max / My);
+			var Rx = (Mx - event.pageX) * (max / Mx) * -1; 
+			// var Rx = 0;
+
+			var text = "";
+
+			text += "X: " + cut(format(Rx)) + "\n"; 
+			text += "Y: " + cut(format(Ry)) + "\n";
+
+			phoneTop.style.transform = 
+				// position(Math.sin(Rx * g) * topPos[1], 0, 0) +
+				// position(0, Math.cos(Ry * g) * topPos[1], 0) +
+				// position(0, 0, Math.sin(Ry * g) * topPos[1]) +
+				position(0, Math.cos(Ry * g) * topPos[1], Math.sin(Ry * g) * topPos[1]) +
+				rotation(Ry + topRot[0], 0, (Rx * -1) + 180);
+
+			phoneFront.style.transform = 
+				// position(Math.sin(Rx * g) * frontPos[2] * -1, 0, 0) +
+				// position(0, Math.sin(Ry * g) * frontPos[2], 0) + 
+				// position(0, 0, Math.cos(Ry * g) * frontPos[2] * -1) +
+				position(Math.sin(Rx * g) * frontPos[2] * -1, Math.sin(Ry * g) * frontPos[2], Math.cos(Ry * g) * frontPos[2] * -1) +
+				rotation(Ry, Rx, 0);
+
+			phoneLeft.style.transform = 
+				// position(Math.cos(Rx * g) * leftPos[0], 0, 0) +
+				// position(0, Math.sin(Ry * g) * leftPos[0], 0) + 
+				// position(0, 0, Math.sin(Rx * g) * leftPos[0] * -1) +
+				position(Math.cos(Rx * g) * leftPos[0], Math.sin(Ry * g) * leftPos[0], Math.sin(Rx * g) * leftPos[0] * -1) + 
+				// position(Math.cos(Rx * g) * leftPos[0], 0, Math.sin(Rx * g) * leftPos[0] * -1) + 
+				rotation(Ry, Rx + leftRot[1], 0);
+				// "";
+
+			text += "\nPhoneTop:\n";
+			text += "\tPosition: " + phoneTop.style.transform.split("translate").join("").split(" ").slice(0, 3).join(" ") + "\n";
+			text += "\tRotation: " + phoneTop.style.transform.split("rotate").join("").split(" ").slice(3).join(" ") + "\n"
+
+			text += "\nPhoneFront:\n";
+			text += "\tPosition: " + phoneFront.style.transform.split("translate").join("").split(" ").slice(0, 3).join(" ") + "\n";
+			text += "\tRotation: " + phoneFront.style.transform.split("rotate").join("").split(" ").slice(3).join(" ") + "\n";
+
+			text += "\nPhoneLeft:\n";
+			text += "\tPosition: " + phoneLeft.style.transform.split("translate").join("").split(" ").slice(0, 3).join(" ") + "\n";
+			text += "\tRotation: " + phoneLeft.style.transform.split("rotate").join("").split(" ").slice(3).join(" ") + "\n";
+
+			// phoneRight.style.transform = position() + rotation();
+
+			// phoneBottom.style.transform = position() + rotation();
+
+			// phoneBack.style.transform = position() + rotation();
+
+			print.textContent = text;
+		}
+
+		// phone.perspective = 500;
+
+		// phone.style.perspective = phone.perspective + "px";
+
+		// onmousewheel = function(event) {
+		// 	var direction = event.deltaY / 100 * -1;
+		// 	if (direction >= 1) {
+		// 		console.log("+");
+		// 		phone.perspective += 10;
+		// 	} else {
+		// 		if (phone.perspective > 1) {
+		// 			console.log("-");
+		// 			phone.perspective -= 10;
+		// 		}
+		// 	}
+		// 	phone.style.perspective = phone.perspective + "px";
+		// 	console.log(event, phone.perspective);
+		// }
+	</script>
+</html>
+
+<!-- top
+	X 
+	Y
+	Z 14.32
+front
+	X 
+	Y 1.62
+	Z 
+left
+	X -8.65
+	Y 
+	Z 
+right
+	X 8.65
+	Y
+	Z 
+bottom
+	X 
+	Y
+	Z -14.32
+back
+	X 
+	Y -1.62
+	Z  -->
